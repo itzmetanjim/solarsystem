@@ -21,7 +21,7 @@ renderer.setSize(window.innerWidth,window.innerHeight)
 document.body.appendChild(renderer.domElement)
 const controls = new OrbitControls(camera, renderer.domElement)
 controls.enableDamping = true
-const light = new THREE.PointLight(0xffffff, 50000, 500);
+const light = new THREE.PointLight(0xffffff, 50000, 3000);
 light.position.set(0, 0, 0); 
 scene.add(light);
 const ambient = new THREE.AmbientLight(0xffffff, 0.2);
@@ -119,3 +119,93 @@ window.addEventListener('keydown', (e) => {
         console.log('Camera Rotation:', camera.rotation);
     }
 });
+const starColors = [
+    0x9bb0ff,
+    0xaabfff,
+    0xcad7ff,
+    0xf8f7ff,
+    0xfff4ea,
+    0xffd2a1,
+    0xffcc6f 
+]
+const starProbs=[
+    5.00003,
+    15.13,
+    15.6,
+    18,
+    17.6,
+    12.1,
+    16.45
+];
+//const starColors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff, 0xffffff]; //paint splatter
+/*const starColors = [
+    0x55aaff, 
+    0xaaddff, 
+    0xffffff, 
+    0xffffee, 
+    0xffe066, 
+    0xffa366, 
+    0xff4d4d  
+];saturated*/
+function createCircleTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+    gradient.addColorStop(0.5, 'rgba(255,255,255,0.2)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 64, 64);
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
+}
+function createStarField(num,size){
+    const starGeometry = new THREE.BufferGeometry();
+    const colors=new Float32Array(num*3)
+    const positions=new Float32Array(num*3)
+    // for(let i=0;i<num*3;i+=3){
+    //     //direction
+    //     let theta=Math.random()*Math.PI*2
+    //     let phi=Math.random()*Math.PI*2
+    //     let radius=Math.random()*2000+350
+    //     positions[i]=radius*Math.sin(phi)*Math.cos(theta)
+    //     positions[i+1]=radius*Math.sin(phi)*Math.sin(theta)
+    //     positions[i+2]=radius*Math.cos(phi)
+    // }
+
+    for(let i=0;i<num*3;i+=3){
+        let theta=Math.random()*Math.PI*2
+        let z=Math.random()*2-1
+        let sinOfPhi=Math.sqrt(1-z*z)
+        let r1=Math.random()*2000+350
+        positions[i]=r1*sinOfPhi*Math.cos(theta)
+        positions[i+1]=r1*sinOfPhi*Math.sin(theta)
+        positions[i+2]=r1*z
+    }
+    for(let i=0;i<num*3;i+=3){
+        let r=Math.random()*100
+        let sp=0
+        for(let j=0;j<starProbs.length;j++){
+            sp+=starProbs[j]
+            let brightness=Math.random()*0.8+0.2
+            if(r<sp){
+                colors[i]=((starColors[j]>>16)&0xff)/255*brightness
+                colors[i+1]=((starColors[j]>>8)&0xff)/255*brightness
+                colors[i+2]=(starColors[j]&0xff)/255*brightness
+                break
+            }
+        }
+    }
+    starGeometry.setAttribute('position',new THREE.BufferAttribute(positions,3))
+    starGeometry.setAttribute('color',new THREE.BufferAttribute(colors,3))
+    const starMaterial=new THREE.PointsMaterial({vertexColors:true,
+        size:size,sizeAttenuation:true,transparent:true,opacity:0.8
+        ,map:createCircleTexture(),blending:THREE.AdditiveBlending})
+    const starField=new THREE.Points(starGeometry,starMaterial)
+    scene.add(starField)
+}
+createStarField(80000,2.5)
+createStarField(20000,5)
