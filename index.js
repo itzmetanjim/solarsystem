@@ -13,6 +13,12 @@ const textures=[
     '2k_neptune.jpg',
     '2k_sun.jpg'
 ]
+const uslider=document.getElementById('userspeed')
+const udisplay=document.getElementById('speeddisplay')
+uslider.addEventListener('input',()=>{
+    udisplay.textContent=parseFloat(uslider.value).toFixed(1).toString()
+})
+    udisplay.textContent=uslider.value
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
 camera.position.set(108.49845488868118,50.06046846195937,300.2095668359693)
 camera.rotation.set(-0.5866327458818762,0.1699606173815889,0.17647978789089527)
@@ -101,10 +107,14 @@ const orbitSpeeds = [
 distances.forEach(distance => createOrbit(distance))
 
 const clock = new THREE.Clock()
+var ctime = 0
+var lastTime=0
 function animate() {
     requestAnimationFrame(animate)
     controls.update()
-    const t=clock.getElapsedTime()
+    ctime+=(clock.getElapsedTime()-lastTime)*uslider.value
+    lastTime=clock.getElapsedTime()
+    var t=ctime
     planets.forEach((planet, index) => {
         var angle = t * orbitSpeeds[index] * speed + offsets[index]
         planet.position.x = distances[index] * Math.cos(angle)
