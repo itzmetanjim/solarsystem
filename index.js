@@ -109,6 +109,9 @@ window.addEventListener('message',(e)=>{
     if(e.data.type==='hideui'){
         document.getElementById('ui').style.display='none'
     }
+    else if(e.data.type==='speed'){
+        speed=e.data.value
+    }
 })
 const clock = new THREE.Clock()
 var ctime = 0
