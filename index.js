@@ -105,7 +105,11 @@ const orbitSpeeds = [
     scene.add(orbit);
 }
 distances.forEach(distance => createOrbit(distance))
-
+window.addEventListener('message',(e)=>{
+    if(e.data.type==='hideui'){
+        document.getElementById('ui').style.display='none'
+    }
+})
 const clock = new THREE.Clock()
 var ctime = 0
 var lastTime=0
