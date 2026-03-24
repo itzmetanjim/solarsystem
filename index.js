@@ -109,11 +109,13 @@ distances.forEach(distance => createOrbit(distance))
 const clock = new THREE.Clock()
 var ctime = 0
 var lastTime=0
+var elapsed=0
 function animate() {
     requestAnimationFrame(animate)
     controls.update()
-    ctime+=(clock.getElapsedTime()-lastTime)*uslider.value
-    lastTime=clock.getElapsedTime()
+    elapsed=clock.getElapsedTime()
+    ctime+=(elapsed-lastTime)*uslider.value
+    lastTime=elapsed
     var t=ctime
     planets.forEach((planet, index) => {
         var angle = t * orbitSpeeds[index] * speed + offsets[index]
