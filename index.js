@@ -11,7 +11,9 @@ const textures=[
     '2k_saturn.jpg',
     '2k_uranus.jpg',
     '2k_neptune.jpg',
-    '2k_sun.jpg'
+    '2k_sun.jpg',
+    '2k_moon.jpg',
+    '2k_saturn_ring_alpha.png'
 ]
 const uslider=document.getElementById('userspeed')
 const udisplay=document.getElementById('speeddisplay')
@@ -85,6 +87,16 @@ const planets=[mercury,venus,earth,mars,jupiter,saturn,uranus,neptune]
 const distances=[40,60,85,110,160,210,260,310]
 const offsets=[Math.random()*Math.PI*2,Math.random()*Math.PI*2,Math.random()*Math.PI*2,Math.random()*Math.PI*2,Math.random()*Math.PI*2,Math.random()*Math.PI*2,Math.random()*Math.PI*2,Math.random()*Math.PI+Math.PI] 
 var speed = 10
+const geometryring = new THREE.RingGeometry(8.7, 12, 64)
+const materialring = new THREE.MeshStandardMaterial({ color: 0xc5ab6e, map: textureLoader.load(textures[10]), side: THREE.DoubleSide, transparent: true })
+const ring = new THREE.Mesh(geometryring, materialring)
+
+const geometrymoon = new THREE.SphereGeometry(1.8, 32, 32)
+const materialmoon = new THREE.MeshStandardMaterial({ color: 0x888888, map: textureLoader.load(textures[9]) })
+const moon = new THREE.Mesh(geometrymoon, materialmoon)
+scene.add(moon)
+ring.rotation.x = Math.PI / 2
+scene.add(ring)
 const orbitSpeeds = [
   0.25,     //mercury
   0.098,    //venus  
@@ -94,7 +106,9 @@ const orbitSpeeds = [
   0.029,    //saturn 
   0.028,   //uranus 
   0.0236   //neptune
-];function createOrbit(distance) {
+];
+//moon orbit speed around earth is 0.1
+function createOrbit(distance) {
     const geometry = new THREE.RingGeometry(distance, distance + 0.2, 64);
     const material = new THREE.MeshBasicMaterial({ 
         color: 0x444444, 
@@ -132,6 +146,12 @@ function animate() {
         planet.position.x = distances[index] * Math.cos(angle)
         planet.position.z = distances[index] * Math.sin(angle)
     })
+    ring.position.x = saturn.position.x
+    ring.position.z = saturn.position.z
+    ring.position.y = saturn.position.y
+    moon.position.x = earth.position.x + 12 * Math.cos(t * 0.1 * speed)
+    moon.position.z = earth.position.z + 12 * Math.sin(t * 0.1 * speed)
+    moon.position.y = earth.position.y
     renderer.render(scene, camera)
 }
 animate()
@@ -139,6 +159,22 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'p') {
         console.log('Camera Position:', camera.position);
         console.log('Camera Rotation:', camera.rotation);
+    }else if(e.key==="w" || e.key==="a" || e.key==="s" || e.key==="d"){
+        let quaternion = camera.quaternion.clone();
+        let forward = new THREE.Vector3(0, 0, -1).applyQuaternion(quaternion);
+        let right = new THREE.Vector3(1,0,0).applyQuaternion(quaternion);
+        let left=new THREE.Vector3(-1,0,0).applyQuaternion(quaternion);
+        let behind=new THREE.Vector3(0,0,1).applyQuaternion(quaternion);
+        let move=10;
+        if(e.key==="w"){
+            camera.position.add(forward.multiplyScalar(move))
+        }else if(e.key==="s"){
+            camera.position.add(behind.multiplyScalar(move))
+        }else if(e.key==="a"){
+            camera.position.add(left.multiplyScalar(move))
+        }else if(e.key==="d"){
+            camera.position.add(right.multiplyScalar(move))
+        }
     }
 });
 const starColors = [
