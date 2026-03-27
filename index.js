@@ -113,8 +113,7 @@ window.addEventListener('message',(e)=>{
         speed=e.data.value
     }else if(e.data.type==='getCanvasSize'){
         let canvas=document.getElementsByTagName('canvas')[0]
-        window.parent.postMessage({type:'canvasSize',width:canvas.width,height:canvas.height
-        },'*')
+        window.parent.postMessage({type:'canvasSize',width:canvas.width,height:canvas.height},'*')
     }
 })
 const clock = new THREE.Clock()
