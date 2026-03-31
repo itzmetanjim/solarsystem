@@ -1,3 +1,6 @@
+if(window.location.href.includes('?hideui') || window.location.href.includes('&hideui')){
+    document.getElementById('ui').style.display='none'
+}
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 const scene = new THREE.Scene()
